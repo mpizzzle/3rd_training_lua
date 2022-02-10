@@ -1614,6 +1614,7 @@ training_settings = {
   display_frame_advantage = false,
   display_hitboxes = false,
   display_distances = false,
+  display_juggle = false,
   auto_crop_recording_start = true,
   auto_crop_recording_end = true,
   current_recording_slot = 1,
@@ -1741,6 +1742,7 @@ main_menu = make_multitab_menu(
         checkbox_menu_item("Display Frame Advantage", training_settings, "display_frame_advantage"),
         checkbox_menu_item("Display Hitboxes", training_settings, "display_hitboxes"),
         checkbox_menu_item("Display Distances", training_settings, "display_distances"),
+        checkbox_menu_item("Display Juggle Gauge", training_settings, "display_juggle"),
       }
     },
     {
@@ -2455,6 +2457,42 @@ function on_gui()
       display_draw_bonuses(player_objects[2])
     end
 
+    if training_settings.display_juggle then
+      local offsetX = 227
+      local offsetY = 49
+      local _gauge_background_color = 0xD6E7EF77
+      local _gauge_valid_fill_color = 0x52AAE7FF
+      local _gauge_cooldown_fill_color = 0xFF9939FF
+      local tsuigeki = memory.readbyte(0x020694C7)
+
+      gui.drawtext(offsetX, offsetY, tostring(memory.readbyte(0x020694C9)))
+
+      offsetX = offsetX + 8
+
+      draw_gauge(offsetX, offsetY, 121, 6, 1.0, nil, _gauge_background_color, nil, false)
+      gui.drawtext(offsetX + 1, offsetY - 9, "Juggle")
+
+      if tsuigeki ~= 0xFF then
+        local tsu_1_2 = (tsuigeki + 1) / 2
+
+        draw_gauge(offsetX, offsetY, tsu_1_2, 6, 0.0, 0x00000000, _gauge_cooldown_fill_color, 0x00000000, false)
+
+        if tsuigeki > 0 then
+          gui.drawtext(offsetX + tsu_1_2, offsetY + 10, tsu_1_2)
+        end
+      end
+
+      gui.drawline(offsetX + 101, offsetY, offsetX + 101, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +  81, offsetY, offsetX +  81, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +  61, offsetY, offsetX +  61, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +  41, offsetY, offsetX +  41, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +  21, offsetY, offsetX +  21, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +  11, offsetY, offsetX +  11, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +   5, offsetY, offsetX +   5, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +   2, offsetY, offsetX +   2, offsetY + 6, _gauge_background_color)
+      gui.drawline(offsetX +   1, offsetY, offsetX +   1, offsetY + 6, _gauge_background_color)
+    end
+
     -- hitboxes
     if training_settings.display_hitboxes then
       display_draw_hitboxes()
@@ -2539,6 +2577,8 @@ function on_gui()
       _x = math.max(_x, 4)
       _x = math.min(_x, emu.screenwidth() - (_half_width * 2.0 + 14))
       _y = _py - 100
+    elseif training_settings.display_juggle then
+      _y = _y + 25
     end
 
     local _y_offset = 0
@@ -2644,64 +2684,14 @@ function on_gui()
       _x = math.max(_x, 4)
       _x = math.min(_x, emu.screenwidth() - (_half_width * 2.0 + 14))
       _y = _py - 100
+    elseif training_settings.display_juggle then
+      _y = _y + 25
     end
 
     local _y_offset = 0
     local _x_offset = 0
     local _group_y_margin = 6
     local _group_x_margin = 12
-
-
-    local offsetX = 240
-    local offsetY = 50
-
-    local _gauge_background_color = 0xD6E7EF77
-    local _gauge_valid_fill_color = 0x52AAE7FF
-    local _gauge_cooldown_fill_color = 0xFF9939FF
-
-    if true then
-        gui.drawtext(offsetX, offsetY, tostring(memory.readbyte(0x020694C9)))
-
-        offsetX = offsetX + 8
-
-        draw_gauge(offsetX, offsetY, 121, 6, 1.0, nil, _gauge_background_color, nil, false)
-
-        -- gui.drawbox(offsetX, offsetY, offsetX + 121, offsetY + 6, 0x00000000, _gauge_background_color)
-        -- gui.box(offsetX, offsetY, offsetX + 121, offsetY + 6, 0x00000000, _gauge_background_color)
-        -- draw_gauge(_reset_gauge_left, _y + 8 + _gauge_height + 2, _reset_gauge_width, _gauge_height, _charge_object.reset_time / _charge_object.max_reset, _gauge_cooldown_fill_color, _gauge_background_color, nil, true)
-
-        local tsuigeki = memory.readbyte(0x020694C7)
-
-        if tsuigeki ~= 0xFF then
-            local tsu_1_2 = (tsuigeki + 1) / 2
-
-            -- gui.drawbox(offsetX, offsetY, offsetX + tsu_1_2, offsetY + 6, _gauge_cooldown_fill_color, 0x000000FF)
-
-            gui.drawtext(offsetX + 1, offsetY - 9, "Juggle")
-            draw_gauge(offsetX, offsetY, tsu_1_2, 6, 0.0, 0x00000000, _gauge_cooldown_fill_color, 0x00000000, false)
-
-            if tsuigeki > 0 then
-                gui.drawtext(offsetX + tsu_1_2, offsetY + 10, tsu_1_2)
-            end
-        end
-
-        -- local juggle_offsets = { {101}, {81}, {61}, {41}, {21}, {11}, {5}, {2}, {1} }
-
-        -- for juggle in pairs(juggle_offsets) do
-        --   gui.drawline(offsetX + juggle, offsetY, offsetX + juggle, offsetY + 6, 0x000000FF)
-        -- end 
-
-        gui.drawline(offsetX + 101, offsetY, offsetX + 101, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +  81, offsetY, offsetX +  81, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +  61, offsetY, offsetX +  61, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +  41, offsetY, offsetX +  41, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +  21, offsetY, offsetX +  21, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +  11, offsetY, offsetX +  11, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +   5, offsetY, offsetX +   5, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +   2, offsetY, offsetX +   2, offsetY + 6, _gauge_background_color)
-        gui.drawline(offsetX +   1, offsetY, offsetX +   1, offsetY + 6, _gauge_background_color)
-    end
-
 
     function draw_charge_gauge_group(_x, _y, _charge_object)
       local _gauge_height = 3
