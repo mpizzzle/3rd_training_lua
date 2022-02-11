@@ -538,7 +538,8 @@ players = {
 special_training_mode = {
   "none",
   "parry",
-  "charge"
+  "charge",
+  "denjin"
 }
 
 function make_recording_slot()
@@ -2674,6 +2675,43 @@ function on_gui()
 
       if _parry.enabled then
         _y_offset = _y_offset + _group_y_margin + draw_parry_gauge_group(_x, _y + _y_offset, _parry.object)
+      end
+    end
+  end
+
+  if is_in_match and special_training_mode[training_settings.special_training_current_mode] == "denjin" then
+    if memory.readbyte(0x2011387) == 0x02 then
+
+      local offsetX = 193
+      local offsetY = 50
+      local _gauge_background_color = 0xD6E7EF77
+      local _gauge_valid_fill_color = 0x08A100FF
+      local _gauge_cooldown_fill_color = 0xFF7939FF
+
+      if memory.readbyte(0x020154D3) == 2 then
+        gui.drawtext(offsetX + 4, offsetY + 8, "Denjin")
+        gui.drawtext(offsetX - 6, offsetY + 16, tostring(memory.readbyte(0x02068D27)))
+
+        offsetX = offsetX + 3
+        offsetY = offsetY + 16
+
+        draw_gauge(offsetX, offsetY, 160, 6, 1.0, nil, _gauge_background_color, nil, false)
+
+        denjin = memory.readbyte(0x02068D2D)
+
+        if denjin == 3 then
+          draw_gauge(offsetX, offsetY, (memory.readbyte(0x02068D27) * 2), 6, 1.0, nil, 0x00FFFFFF, nil, false)
+        elseif denjin == 9 then
+          draw_gauge(offsetX, offsetY, (memory.readbyte(0x02068D27) * 2), 6, 1.0, nil, 0x0080FFFF, nil, false)
+        elseif denjin == 14 then
+          draw_gauge(offsetX, offsetY, (memory.readbyte(0x02068D27) * 2), 6, 1.0, nil, _gauge_valid_fill_color, nil, false)
+        elseif denjin == 19 then
+          draw_gauge(offsetX, offsetY, (memory.readbyte(0x02068D27) * 2), 6, 1.0, nil, _gauge_cooldown_fill_color, nil, false)
+        end
+
+        gui.drawline(offsetX + 16, offsetY, offsetX + 16, offsetY + 6, _gauge_background_color)
+        gui.drawline(offsetX + 48, offsetY, offsetX + 48, offsetY + 6, _gauge_background_color)
+        gui.drawline(offsetX + 96, offsetY, offsetX + 96, offsetY + 6, _gauge_background_color)
       end
     end
   end
