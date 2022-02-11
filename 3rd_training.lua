@@ -2458,12 +2458,23 @@ function on_gui()
     end
 
     if training_settings.display_juggle then
+      local _player = P1
       local offsetX = 227
       local offsetY = 49
       local _gauge_background_color = 0xD6E7EF77
       local _gauge_valid_fill_color = 0x52AAE7FF
       local _gauge_cooldown_fill_color = 0xFF9939FF
       local tsuigeki = memory.readbyte(0x020694C7)
+
+      if training_settings.special_training_follow_character then
+        local _px = _player.pos_x - screen_x + emu.screenwidth()/2
+        local _py = emu.screenheight() - (_player.pos_y - screen_y) - ground_offset
+        local _half_width = 40 * 2
+        offsetX = _px - _half_width
+        offsetX = math.max(offsetX, 4)
+        offsetX = math.min(offsetX, emu.screenwidth() - (_half_width * 2.0 + 14))
+        offsetY = _py - 100
+      end
 
       gui.drawtext(offsetX, offsetY, tostring(memory.readbyte(0x020694C9)))
 
