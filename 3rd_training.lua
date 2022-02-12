@@ -539,7 +539,7 @@ special_training_mode = {
   "none",
   "parry",
   "charge",
-  "denjin"
+  "Denjin"
 }
 
 function make_recording_slot()
@@ -2679,7 +2679,7 @@ function on_gui()
     end
   end
 
-  if is_in_match and special_training_mode[training_settings.special_training_current_mode] == "denjin" then
+  if is_in_match and special_training_mode[training_settings.special_training_current_mode] == "Denjin" then
     if memory.readbyte(0x2011387) == 0x02 then
 
       local offsetX = 193
